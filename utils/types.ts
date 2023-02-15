@@ -3,8 +3,12 @@ export type User = {
   password: string;
 };
 
-export type Show = {
-  showId: number;
+export type TvShow = {
+  tvShowId: number;
   name: string;
-  userId: string;
+};
+
+export type FollowedTvShow = {
+  tvShowId: number;
+  userId: number;
 };

@@ -33,12 +33,12 @@ export default function Login({ methodRequest }: { methodRequest: string }) {
       const res = await axios.post(url, data);
       const { authToken }: ResJsonData = await res.data;
 
-      setCookie("auth_token", authToken, { maxAge: 24 * 60 * 60 * 1000 });
-
+      
       if (methodRequest === "signup") {
         router.push("/");
       } else if (methodRequest === "login") {
         router.push("/search");
+        setCookie("auth_token", authToken, { maxAge: 24 * 60 * 60 * 1000 });
       }
     } catch (error) {
       if (isAxiosError(error)) {

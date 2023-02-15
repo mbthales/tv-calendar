@@ -3,22 +3,30 @@ generator client {
 }
 
 datasource db {
-  provider = "mongodb"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
 model User {
-  id       String @id @default(auto()) @map("_id") @db.ObjectId
-  username String @unique
-  password String
-  shows    FollowedShow[]
+  id             Int              @id @default(autoincrement())
+  username       String           @unique
+  password       String
+  FollowedTvShow FollowedTvShow[]
 }
 
-model FollowedShow {
-  id     String @id @default(auto()) @map("_id") @db.ObjectId
-  showId Int
-  name   String
-  user   User   @relation(fields: [userId], references: [id])
-  userId String @db.ObjectId
-  @@unique([showId, userId], name: "followed_show")
+model FollowedTvShow {
+  id       Int    @id @default(autoincrement())
+  tvShowId Int
+  userId   Int
+  tvShow   TvShow @relation(fields: [tvShowId], references: [tvShowId])
+  user     User   @relation(fields: [userId], references: [id])
+
+  @@unique([tvShowId, userId], name: "followedTvShow")
+}
+
+model TvShow {
+  id             Int              @id @default(autoincrement())
+  tvShowId       Int              @unique
+  name           String
+  FollowedTvShow FollowedTvShow[]
 }
