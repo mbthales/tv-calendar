@@ -1,21 +1,7 @@
-"use client";
-
 import { useForm } from "react-hook-form";
 import axios, { isAxiosError } from "axios";
-import { setCookie } from "cookies-next";
 import { useRouter } from "next/navigation";
-
-type LoginData = {
-  username: string;
-  password: string;
-  error: string | null;
-};
-
-type ResJsonData = {
-  authToken: string;
-  msg: string;
-  err: string;
-};
+import { LoginForm, ResLoginData } from "@/utils/types";
 
 export default function Login({ methodRequest }: { methodRequest: string }) {
   const router = useRouter();
@@ -24,21 +10,18 @@ export default function Login({ methodRequest }: { methodRequest: string }) {
     handleSubmit,
     setError,
     formState: { errors },
-  } = useForm<LoginData>();
+  } = useForm<LoginForm>();
 
-  const login = async (data: LoginData) => {
-    const url = `${process.env.NEXT_PUBLIC_DB_BASE_URL}/${methodRequest}`;
-
+  const login = async (data: LoginForm) => {
     try {
+      const url = `${process.env.NEXT_PUBLIC_DB_BASE_URL}/${methodRequest}`;
       const res = await axios.post(url, data);
-      const { authToken }: ResJsonData = await res.data;
+      const { authToken }: ResLoginData = await res.data;
 
-      
       if (methodRequest === "signup") {
         router.push("/");
       } else if (methodRequest === "login") {
         router.push("/search");
-        setCookie("auth_token", authToken, { maxAge: 24 * 60 * 60 * 1000 });
       }
     } catch (error) {
       if (isAxiosError(error)) {

@@ -18,7 +18,6 @@ export default async function handler(
   if (method === "POST") {
     const { userId, tvShowId, name }: ReqBody = req.body;
 
-    console.log(req.body)
     try {
       const user = await prisma.user.findUnique({
         where: {
@@ -68,7 +67,7 @@ export default async function handler(
             });
             res.status(200).json({ msg: "Tv show followed!" });
           } else {
-            res.status(200).json({ msg: "User already follows the tv show!" });
+            throw "User already follows the tv show!";
           }
         }
       } else {

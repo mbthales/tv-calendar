@@ -1,9 +1,9 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcrypt";
-import jwt from "jsonwebtoken";
-
-import { User } from "../../utils/types";
+import { SignJWT } from "jose";
+import { setCookie } from "cookies-next";
+import { User } from "@/utils/types";
 
 const prisma = new PrismaClient();
 
@@ -32,16 +32,22 @@ export default async function handler(
           );
 
           if (checkIfPasswordMatch) {
-            const authToken = jwt.sign(
-              {
-                userId: user.id,
-              },
-              process.env.SECRET_KEY as string,
-              { expiresIn: "365d" }
+            const jwtKey = new TextEncoder().encode(
+              process.env.JWT_KEY as string
             );
 
+            const authToken = await new SignJWT({ userId: user.id })
+              .setProtectedHeader({ alg: "HS256" })
+              .setExpirationTime("365d")
+              .sign(jwtKey);
+
+            setCookie("authToken", authToken, {
+              req,
+              res,
+              maxAge: 24 * 60 * 60 * 1000,
+            });
+
             res.status(200).json({
-              authToken,
               msg: "Logged successfully!",
             });
           } else {

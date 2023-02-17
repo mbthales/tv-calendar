@@ -1,30 +1,28 @@
-import { useContext } from "react";
-import { AuthContext } from "../contexts/authContext";
 import axios from "axios";
-
-type FoundTvShow = {
-  id: number;
-  name: string;
-  status: string;
-  networkName?: string;
-};
+import { useContext } from "react";
+import { UserContext } from "@/contexts/userContext";
+import { FoundTvShow } from "@/utils/types";
 
 export default function DisplayFoundedTvShows({
   foundTvShows,
 }: {
   foundTvShows: FoundTvShow[];
 }) {
-  const { userId } = useContext(AuthContext);
-  const followTvShow = async (tvShowId: number, name: string) => {
-    const url = "/api/followed-tvshow";
-    const res = await axios.post(url, {
-      userId,
-      tvShowId,
-      name,
-    });
-    const resData = await res.data;
+  const { userId } = useContext(UserContext);
 
-    console.log(resData);
+  const followTvShow = async (tvShowId: number, name: string) => {
+    try {
+      const url = `/api/follow-tvshow`;
+      const res = await axios.post(url, {
+        userId,
+        tvShowId,
+        name,
+      });
+      const { message } = res.data;
+      console.log(message);
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   return (

@@ -1,28 +1,10 @@
-"use client";
-
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import axios, { isAxiosError } from "axios";
 
 import DisplayFoundedTvShows from "./DisplayFoundedTvShows";
 
-type TvShowRequest = {
-  show: {
-    id: number;
-    name: string;
-    status: string;
-    network?: {
-      name: string;
-    };
-  };
-};
-
-type FoundTvShow = {
-  id: number;
-  name: string;
-  status: string;
-  networkName?: string;
-};
+import { FoundTvShow, ResTvShowData } from "@/utils/types";
 
 export default function SearchShow() {
   const [foundTvShows, setFoundTvShows] = useState<FoundTvShow[] | null>(null);
@@ -34,17 +16,27 @@ export default function SearchShow() {
   } = useForm<{ showName: string }>();
 
   const getShows = async ({ showName }: { showName: string }) => {
-    const url = `https://api.tvmaze.com/search/shows?q=${showName}`;
-    const res = await axios.get(url);
-    const resData: TvShowRequest[] = await res.data;
-    const tvShows = resData.map(({ show: { id, name, network, status } }) => ({
-      id,
-      name,
-      status,
-      networkName: network?.name,
-    }));
+    try {
+      const url = `https://api.tvmaze.com/search/shows?q=${showName}`;
+      const res = await axios.get(url);
+      const resData: ResTvShowData[] = await res.data;
+      const tvShows = resData.map(
+        ({ show: { id, name, network, status } }) => ({
+          id,
+          name,
+          status,
+          networkName: network?.name,
+        })
+      );
 
-    setFoundTvShows(tvShows);
+      setFoundTvShows(tvShows);
+    } catch (error) {
+      if (isAxiosError(error)) {
+        setError("root", {
+          message: error.message,
+        });
+      }
+    }
   };
 
   return (
@@ -52,6 +44,7 @@ export default function SearchShow() {
       <form onSubmit={handleSubmit(getShows)}>
         <input type="text" {...register("showName", { required: true })} />
         <input type="submit" />
+        {errors.root && <p> {errors.root.message}</p>}
       </form>
       {foundTvShows && <DisplayFoundedTvShows foundTvShows={foundTvShows} />}
     </main>
