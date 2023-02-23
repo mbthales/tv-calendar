@@ -41,7 +41,7 @@ export default async function handler(
               .setExpirationTime("365d")
               .sign(jwtKey);
 
-            setCookie("authToken", authToken, {
+            setCookie("auth_token", authToken, {
               req,
               res,
               maxAge: 24 * 60 * 60 * 1000,

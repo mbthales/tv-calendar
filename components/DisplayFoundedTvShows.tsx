@@ -1,5 +1,6 @@
-import axios from "axios";
-import { useContext } from "react";
+import axios, { isAxiosError } from "axios";
+import { useContext, useState } from "react";
+
 import { UserContext } from "@/contexts/userContext";
 import { FoundTvShow } from "@/utils/types";
 
@@ -8,20 +9,29 @@ export default function DisplayFoundedTvShows({
 }: {
   foundTvShows: FoundTvShow[];
 }) {
-  const { userId } = useContext(UserContext);
+  const { userId, followedTvShows } = useContext(UserContext);
+  const [followedTvShowsIds, setfollowedTvShowsIds] = useState(
+    followedTvShows?.map(({ tvShowId }) => tvShowId)
+  );
+  const [apiError, setApiError] = useState<string | null>(null);
 
   const followTvShow = async (tvShowId: number, name: string) => {
     try {
       const url = `/api/follow-tvshow`;
-      const res = await axios.post(url, {
+      await axios.post(url, {
         userId,
         tvShowId,
         name,
       });
-      const { message } = res.data;
-      console.log(message);
+
+      setfollowedTvShowsIds((oldArray) => [
+        ...(oldArray as number[]),
+        tvShowId,
+      ]);
     } catch (error) {
-      console.log(error);
+      if (isAxiosError(error)) {
+        setApiError(error.message);
+      }
     }
   };
 
@@ -37,7 +47,13 @@ export default function DisplayFoundedTvShows({
               {networkName && <span> ({networkName})</span>}
               <span> - {status}</span>
             </p>
-            <button onClick={() => followTvShow(id, name)}>Follow</button>
+            {apiError ? (
+              <p>{apiError}</p>
+            ) : followedTvShowsIds?.includes(id) ? (
+              <p>Followed</p>
+            ) : (
+              <button onClick={() => followTvShow(id, name)}>Follow</button>
+            )}
           </div>
         ))
       )}

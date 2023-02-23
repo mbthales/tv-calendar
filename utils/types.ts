@@ -10,6 +10,7 @@ export type TvShow = {
 };
 
 export type FollowedTvShow = {
+  id: number
   tvShowId: number;
   userId: number;
 };

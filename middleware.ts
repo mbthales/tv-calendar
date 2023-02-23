@@ -4,8 +4,7 @@ import { jwtVerify } from "jose";
 
 export async function middleware(req: NextRequest) {
   const authToken = req.cookies.get("auth_token")?.value;
-  console.log(authToken);
-  const jwtKey = new TextEncoder().encode(process.env.SECRET_KEY);
+  const jwtKey = new TextEncoder().encode(process.env.JWT_KEY);
   const ifTokenIsValid = authToken ? await jwtVerify(authToken, jwtKey) : null;
 
   if (ifTokenIsValid) {

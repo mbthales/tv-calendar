@@ -1,15 +1,25 @@
 import { GetServerSidePropsContext } from "next";
 import { decodeJwt } from "jose";
+import axios from "axios";
+import { useContext, useEffect } from "react";
+import { FollowedTvShow } from "@/utils/types";
 
 import SearchShow from "@/components/SearchShow";
 import { UserContext } from "@/contexts/userContext";
-import { useContext, useEffect } from "react";
 
 export default function SearchTvShow({ userId }: { userId: number }) {
-  const { setUserId } = useContext(UserContext);
+  const { setUserId, setFollowedTvShows } = useContext(UserContext);
+
+  const getFollowedTvShows = async () => {
+    const res = await axios.get(`api/followed-tvshows/${userId}`);
+    const resData: FollowedTvShow[] = await res.data;
+
+    setFollowedTvShows(resData);
+  };
 
   useEffect(() => {
     setUserId(userId);
+    getFollowedTvShows();
   }, []);
 
   return (
