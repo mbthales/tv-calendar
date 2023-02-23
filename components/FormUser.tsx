@@ -15,8 +15,7 @@ export default function Login({ methodRequest }: { methodRequest: string }) {
   const login = async (data: LoginForm) => {
     try {
       const url = `${process.env.NEXT_PUBLIC_DB_BASE_URL}/${methodRequest}`;
-      const res = await axios.post(url, data);
-      const { authToken }: ResLoginData = await res.data;
+      await axios.post(url, data);
 
       if (methodRequest === "signup") {
         router.push("/");
