@@ -3,6 +3,8 @@ import { GetServerSidePropsContext } from "next";
 
 import FormUser from "@/components/FormUser";
 
+import { getAuthCookie } from "@/utils/functions";
+
 export default function Login() {
   return (
     <main>
@@ -15,10 +17,7 @@ export default function Login() {
 }
 
 export async function getServerSideProps(ctx: GetServerSidePropsContext) {
-  const cookie = ctx.req.headers.cookie;
-  const authToken = cookie?.split("=")[1];
-
-  if (authToken) {
+  if (getAuthCookie(ctx)) {
     return {
       redirect: {
         destination: "/search",

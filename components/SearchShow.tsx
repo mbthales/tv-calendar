@@ -3,7 +3,6 @@ import { useForm } from "react-hook-form";
 import axios, { isAxiosError } from "axios";
 
 import DisplayFoundedTvShows from "./DisplayFoundedTvShows";
-
 import { FoundTvShow, ResTvShowData } from "@/utils/types";
 
 export default function SearchShow() {
@@ -13,11 +12,11 @@ export default function SearchShow() {
     handleSubmit,
     setError,
     formState: { errors },
-  } = useForm<{ showName: string }>();
+  } = useForm<{ tvShowName: string }>();
 
-  const getShows = async ({ showName }: { showName: string }) => {
+  const getTvShows = async ({ tvShowName }: { tvShowName: string }) => {
     try {
-      const url = `https://api.tvmaze.com/search/shows?q=${showName}`;
+      const url = `https://api.tvmaze.com/search/shows?q=${tvShowName}`;
       const res = await axios.get(url);
       const resData: ResTvShowData[] = await res.data;
       const tvShows = resData.map(
@@ -41,8 +40,8 @@ export default function SearchShow() {
 
   return (
     <main>
-      <form onSubmit={handleSubmit(getShows)}>
-        <input type="text" {...register("showName", { required: true })} />
+      <form onSubmit={handleSubmit(getTvShows)}>
+        <input type="text" {...register("tvShowName", { required: true })} />
         <input type="submit" />
         {errors.root && <p> {errors.root.message}</p>}
       </form>

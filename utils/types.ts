@@ -16,7 +16,7 @@ export type FollowedTvShow = {
 };
 
 //CLIENT
-export type LoginForm = {
+export type UserForm = {
   username: string;
   password: string;
   error: string | null;
@@ -45,3 +45,8 @@ export type FoundTvShow = {
   status: string;
   networkName?: string;
 };
+
+export type SearchTvShowType = {
+  userId: number,
+  followedTvShows: FollowedTvShow[]
+}

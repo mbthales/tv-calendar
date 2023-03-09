@@ -1,25 +1,21 @@
 import { GetServerSidePropsContext } from "next";
-import { decodeJwt } from "jose";
 import axios from "axios";
 import { useContext, useEffect } from "react";
-import { FollowedTvShow } from "@/utils/types";
+import { SearchTvShowType, FollowedTvShow } from "@/utils/types";
 
 import SearchShow from "@/components/SearchShow";
 import { UserContext } from "@/contexts/userContext";
+import { getUserId } from "@/utils/functions";
 
-export default function SearchTvShow({ userId }: { userId: number }) {
+export default function SearchTvShow({
+  userId,
+  followedTvShows,
+}: SearchTvShowType) {
   const { setUserId, setFollowedTvShows } = useContext(UserContext);
-
-  const getFollowedTvShows = async () => {
-    const res = await axios.get(`api/followed-tvshows/${userId}`);
-    const resData: FollowedTvShow[] = await res.data;
-
-    setFollowedTvShows(resData);
-  };
 
   useEffect(() => {
     setUserId(userId);
-    getFollowedTvShows();
+    setFollowedTvShows(followedTvShows);
   }, []);
 
   return (
@@ -31,14 +27,22 @@ export default function SearchTvShow({ userId }: { userId: number }) {
 }
 
 export async function getServerSideProps(ctx: GetServerSidePropsContext) {
-  const cookie = ctx.req.headers.cookie;
-  const authToken = cookie?.split("=")[1];
-  const jwtPayload = authToken
-    ? (decodeJwt(authToken) as { userId: number })
-    : null;
-  const userId = jwtPayload?.userId;
+  const userId = getUserId(ctx);
 
-  if (!authToken) {
+  const getFollowedTvShows = async () => {
+    const url = `http://localhost:3000/api/followed-tvshows/${userId}`;
+    const res = await axios.get(url, {
+      withCredentials: true,
+      headers: {
+        Cookie: ctx.req.headers.cookie,
+      },
+    });
+    const resData: FollowedTvShow[] = await res.data;
+
+    return resData;
+  };
+
+  if (!userId) {
     return {
       redirect: {
         destination: "/",
@@ -47,6 +51,6 @@ export async function getServerSideProps(ctx: GetServerSidePropsContext) {
   }
 
   return {
-    props: { userId },
+    props: { userId, followedTvShows: await getFollowedTvShows() },
   };
 }

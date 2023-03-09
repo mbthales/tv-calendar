@@ -1,20 +1,21 @@
 import { useForm } from "react-hook-form";
 import axios, { isAxiosError } from "axios";
 import { useRouter } from "next/navigation";
-import { LoginForm, ResLoginData } from "@/utils/types";
 
-export default function Login({ methodRequest }: { methodRequest: string }) {
+import { UserForm } from "@/utils/types";
+
+export default function FormUser({ methodRequest }: { methodRequest: string }) {
   const router = useRouter();
   const {
     register,
     handleSubmit,
     setError,
     formState: { errors },
-  } = useForm<LoginForm>();
+  } = useForm<UserForm>();
 
-  const login = async (data: LoginForm) => {
+  const loginOrSignup = async (data: UserForm) => {
     try {
-      const url = `${process.env.NEXT_PUBLIC_DB_BASE_URL}/${methodRequest}`;
+      const url = `api/${methodRequest}`;
       await axios.post(url, data);
 
       if (methodRequest === "signup") {
@@ -33,7 +34,7 @@ export default function Login({ methodRequest }: { methodRequest: string }) {
   };
 
   return (
-    <form onSubmit={handleSubmit(login)}>
+    <form onSubmit={handleSubmit(loginOrSignup)}>
       <label htmlFor="username">
         Username
         <input
